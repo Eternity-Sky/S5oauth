@@ -61,6 +61,11 @@ export default async function AuthorizePage({
   // Handle consent
   async function handleApprove() {
     "use server";
+
+    if (!session?.user?.id || !client) {
+      throw new Error("Session or client not found");
+    }
+
     const code = nanoid(32);
     const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
@@ -68,7 +73,7 @@ export default async function AuthorizePage({
       data: {
         code,
         expires,
-        userId: session!.user!.id!,
+        userId: session.user.id,
         clientId,
         redirectUri,
       },
@@ -82,7 +87,7 @@ export default async function AuthorizePage({
     });
 
     // 记录安全审计日志
-    await createAuditLog(session!.user!.id!, "OAUTH_AUTHORIZE", {
+    await createAuditLog(session.user.id, "OAUTH_AUTHORIZE", {
       clientId,
       clientName: client.name,
     });
