@@ -1,8 +1,7 @@
 import { auth, signIn } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { nanoid } from "nanoid";
-import { createAuditLog } from "@/lib/audit";
+import { approveAuthorization } from "@/app/actions/auth-flow";
 
 export default async function AuthorizePage({
   searchParams,
@@ -25,7 +24,7 @@ export default async function AuthorizePage({
     // We'll pass the current URL as the callbackUrl
     const currentUrl = new URL(
       "/api/oidc/authorize",
-      "https://s5auth.netlify.app",
+      process.env.NEXTAUTH_URL || "https://s5auth.netlify.app",
     );
     Object.entries(params).forEach(([k, v]) =>
       currentUrl.searchParams.set(k, v as string),
@@ -58,46 +57,6 @@ export default async function AuthorizePage({
     );
   }
 
-  // Handle consent
-  async function handleApprove() {
-    "use server";
-
-    if (!session?.user?.id || !client) {
-      throw new Error("Session or client not found");
-    }
-
-    const code = nanoid(32);
-    const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-
-    await prisma.oAuthCode.create({
-      data: {
-        code,
-        expires,
-        userId: session.user.id,
-        clientId,
-        redirectUri,
-      },
-    });
-
-    // 增加统计次数
-    await prisma.stats.upsert({
-      where: { id: "global" },
-      update: { count: { increment: 1 } },
-      create: { id: "global", count: 1 },
-    });
-
-    // 记录安全审计日志
-    await createAuditLog(session.user.id, "OAUTH_AUTHORIZE", {
-      clientId,
-      clientName: client.name,
-    });
-
-    const url = new URL(redirectUri);
-    url.searchParams.set("code", code);
-    if (state) url.searchParams.set("state", state);
-    redirect(url.toString());
-  }
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-gray-50">
       <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl border">
@@ -119,14 +78,33 @@ export default async function AuthorizePage({
         </div>
 
         <div className="flex gap-4">
-          <form action={handleApprove} className="flex-1">
-            <button className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition">
+          <form
+            action={async () => {
+              "use server";
+              await approveAuthorization({
+                userId: session.user.id,
+                clientId,
+                redirectUri,
+                state,
+                clientName: client.name,
+              });
+            }}
+            className="flex-1"
+          >
+            <button
+              type="submit"
+              className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition active:scale-95"
+            >
               允许
             </button>
           </form>
           <a
-            href={redirectUri + "?error=access_denied"}
-            className="flex-1 text-center border py-3 rounded-xl font-bold hover:bg-gray-50 transition"
+            href={
+              redirectUri +
+              "?error=access_denied" +
+              (state ? `&state=${state}` : "")
+            }
+            className="flex-1 text-center border py-3 rounded-xl font-bold hover:bg-gray-50 transition active:scale-95"
           >
             拒绝
           </a>
