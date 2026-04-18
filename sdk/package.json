@@ -1,0 +1,33 @@
+{
+  "name": "@sqrt5/s5auth-sdk",
+  "version": "1.0.1",
+  "description": "The official S5auth client SDK for seamless OAuth 2.0 integration.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts --clean",
+    "prepublishOnly": "npm run build",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "lint": "eslint src"
+  },
+  "keywords": [
+    "s5auth",
+    "oauth2",
+    "oidc",
+    "authentication",
+    "identity-provider"
+  ],
+  "author": "S5auth Team",
+  "license": "MIT",
+  "devDependencies": {
+    "tsup": "^8.0.2",
+    "typescript": "^5.3.3"
+  }
+}

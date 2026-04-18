@@ -14,9 +14,69 @@ export default function DocsPage() {
           <p className="text-lg text-gray-600">
             欢迎使用 S5auth。本指南将帮助您在几分钟内为您的网站接入统一身份认证。
           </p>
+          <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-center gap-4">
+            <div className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold">推荐</div>
+            <p className="text-sm text-blue-800">
+              使用我们的官方 <strong>SDK</strong> 可以更快速地完成集成。
+            </p>
+          </div>
         </section>
 
         <section className="space-y-12">
+          {/* SDK Section */}
+          <div className="bg-slate-900 rounded-[32px] p-8 text-slate-100 shadow-2xl shadow-blue-900/20">
+            <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
+              📦 使用官方 SDK (推荐)
+            </h2>
+            
+            <div className="space-y-6">
+              <div>
+                <p className="text-slate-400 text-sm mb-3 font-bold uppercase tracking-wider">安装</p>
+                <pre className="bg-black/50 p-4 rounded-xl text-blue-400 font-mono text-sm">npm install @sqrt5/s5auth-sdk</pre>
+              </div>
+
+              <div>
+                <p className="text-slate-400 text-sm mb-3 font-bold uppercase tracking-wider">初始化 & 登录</p>
+                <pre className="bg-black/50 p-4 rounded-xl text-emerald-400 font-mono text-xs overflow-x-auto">
+{`import { createS5authClient } from '@sqrt5/s5auth-sdk';
+
+const s5auth = createS5authClient({
+  clientId: 'YOUR_CLIENT_ID',
+  redirectUri: 'https://your-site.com/callback'
+});
+
+// 引导用户去登录
+const login = () => {
+  window.location.href = s5auth.getAuthorizationUrl('optional_state');
+};`}
+                </pre>
+              </div>
+
+              <div>
+                <p className="text-slate-400 text-sm mb-3 font-bold uppercase tracking-wider">后端回调处理</p>
+                <pre className="bg-black/50 p-4 rounded-xl text-emerald-400 font-mono text-xs overflow-x-auto">
+{`import { createS5authClient } from '@sqrt5/s5auth-sdk';
+
+// 在您的回调路由中 (如 /api/callback)
+const s5auth = createS5authClient({
+  clientId: 'YOUR_CLIENT_ID',
+  clientSecret: 'YOUR_CLIENT_SECRET',
+  redirectUri: 'https://your-site.com/callback'
+});
+
+const { access_token } = await s5auth.exchangeCodeForTokens(code);
+const user = await s5auth.getUserInfo(access_token);
+console.log('欢迎回来,', user.name);`}
+                </pre>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-gray-100"></span></div>
+            <div className="relative flex justify-center"><span className="bg-white px-4 text-sm text-gray-400 font-bold uppercase tracking-widest">或者使用标准 API</span></div>
+          </div>
+
           {/* Step 1 */}
           <div>
             <h2 className="text-2xl font-bold mb-4 flex items-center gap-3">
