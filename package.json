@@ -12,6 +12,7 @@
     "@auth/prisma-adapter": "^2.11.1",
     "@prisma/adapter-pg": "^7.7.0",
     "@prisma/client": "^7.7.0",
+    "@sqrt5/s5auth-sdk": "^1.0.1",
     "jose": "^6.2.2",
     "nanoid": "^5.1.7",
     "next": "16.2.3",
