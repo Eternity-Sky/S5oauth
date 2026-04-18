@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import * as jose from "jose";
 
+export const runtime = "edge";
+
 export async function POST(req: Request) {
   const formData = await req.formData();
   const code = formData.get("code") as string;

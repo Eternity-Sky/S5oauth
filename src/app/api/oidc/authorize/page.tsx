@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { approveAuthorization } from "@/app/actions/auth-flow";
 import { headers } from "next/headers";
 
+export const runtime = "edge";
+
 export default async function AuthorizePage({
   searchParams,
 }: {
