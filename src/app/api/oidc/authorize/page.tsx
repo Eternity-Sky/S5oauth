@@ -64,6 +64,13 @@ export default async function AuthorizePage({
       },
     });
 
+    // 增加统计次数
+    await prisma.stats.upsert({
+      where: { id: "global" },
+      update: { count: { increment: 1 } },
+      create: { id: "global", count: 1 },
+    });
+
     const url = new URL(redirectUri);
     url.searchParams.set("code", code);
     if (state) url.searchParams.set("state", state);
