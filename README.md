@@ -63,6 +63,7 @@ S5auth 完美支持 Cloudflare Pages 部署，利用 Cloudflare CDN 提供全球
    - 在 Cloudflare Pages 后台，将 **Build command** 设置为 `npm run pages:build`。
    - 将 **Build output directory** 设置为 `.vercel/output`。
    - 在 **Settings -> Functions -> Compatibility flags** 中添加 `nodejs_compat`。
+   - **重要**: 在环境变量中添加 `NPM_FLAGS`，值为 `--legacy-peer-deps`，以解决 Next.js 版本冲突。
    - 配置与 Netlify 相同的环境变量。
 
 4. **数据库建议**:
