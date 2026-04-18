@@ -11,13 +11,16 @@ const createPrismaClient = () => {
   const connectionString = process.env.DATABASE_URL;
 
   if (!connectionString) {
-    throw new Error("DATABASE_URL 环境变量缺失。请在 Netlify 后台配置它。");
+    throw new Error("DATABASE_URL 环境变量缺失。请在部署后台配置它。");
   }
 
+  // 为 Cloudflare Workers / Edge Runtime 优化
   if (!globalForPrisma.pgPool) {
     globalForPrisma.pgPool = new pg.Pool({
       connectionString,
-      max: 1, // 限制连接数以适应无服务器环境
+      max: 1, 
+      // 在某些 Edge 环境下，可能需要额外的 SSL 配置
+      ssl: connectionString.includes("localhost") ? false : { rejectUnauthorized: false }
     });
   }
 

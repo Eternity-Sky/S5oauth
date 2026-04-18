@@ -2,6 +2,7 @@ import { auth, signIn } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { approveAuthorization } from "@/app/actions/auth-flow";
+import { headers } from "next/headers";
 
 export default async function AuthorizePage({
   searchParams,
@@ -22,10 +23,10 @@ export default async function AuthorizePage({
   if (!session) {
     // If not logged in to S5auth, redirect to login
     // We'll pass the current URL as the callbackUrl
-    const currentUrl = new URL(
-      "/api/oidc/authorize",
-      process.env.NEXTAUTH_URL || "https://s5auth.netlify.app",
-    );
+    const headersList = await headers();
+    const host = headersList.get("host") || "s5auth.netlify.app";
+    const protocol = host.includes("localhost") ? "http" : "https";
+    const currentUrl = new URL("/api/oidc/authorize", `${protocol}://${host}`);
     Object.entries(params).forEach(([k, v]) =>
       currentUrl.searchParams.set(k, v as string),
     );
