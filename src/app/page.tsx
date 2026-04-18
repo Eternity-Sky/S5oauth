@@ -67,6 +67,15 @@ export default async function Home() {
             ✨ 专为多站点统一认证而生
           </div>
 
+          <div className="flex justify-center gap-3 mb-6">
+            <a href="https://www.npmjs.com/package/@sqrt5/s5auth-sdk" target="_blank" rel="noreferrer">
+              <img src="https://img.shields.io/npm/v/@sqrt5/s5auth-sdk.svg?color=blue&style=flat-square" alt="NPM Version" />
+            </a>
+            <a href="https://www.npmjs.com/package/@sqrt5/s5auth-sdk" target="_blank" rel="noreferrer">
+              <img src="https://img.shields.io/npm/dm/@sqrt5/s5auth-sdk.svg?color=indigo&style=flat-square" alt="NPM Downloads" />
+            </a>
+          </div>
+
           <h1 className="text-6xl md:text-8xl font-black tracking-tight text-slate-900 mb-8 leading-[1.05]">
             统一您的用户
             <br />
