@@ -8,7 +8,7 @@ const createPrismaClient = () => {
   const connectionString = process.env.DATABASE_URL;
 
   if (!connectionString) {
-    return new PrismaClient();
+    throw new Error("DATABASE_URL 环境变量缺失。请在 Netlify 后台配置它。");
   }
 
   const pool = new pg.Pool({ connectionString });
