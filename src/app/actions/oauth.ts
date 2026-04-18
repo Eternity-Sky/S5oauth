@@ -25,3 +25,14 @@ export async function createOAuthClient(formData: FormData) {
 
   revalidatePath("/dashboard");
 }
+
+export async function deleteOAuthClient(clientId: string) {
+  const session = await auth();
+  if (!session) throw new Error("Unauthorized");
+
+  await prisma.oAuthClient.delete({
+    where: { clientId },
+  });
+
+  revalidatePath("/dashboard");
+}
