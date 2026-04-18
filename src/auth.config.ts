@@ -1,5 +1,6 @@
 import GitHub from "next-auth/providers/github";
 import type { NextAuthConfig } from "next-auth";
+import { createAuditLog } from "./lib/audit";
 
 export default {
   secret: process.env.AUTH_SECRET,
@@ -9,6 +10,13 @@ export default {
       clientSecret: process.env.GITHUB_SECRET,
     }),
   ],
+  events: {
+    async signIn({ user }) {
+      if (user.id) {
+        await createAuditLog(user.id, "LOGIN", { provider: "github" });
+      }
+    },
+  },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;

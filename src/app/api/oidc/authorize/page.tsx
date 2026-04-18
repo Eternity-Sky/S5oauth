@@ -2,6 +2,7 @@ import { auth, signIn } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { nanoid } from "nanoid";
+import { createAuditLog } from "@/lib/audit";
 
 export default async function AuthorizePage({
   searchParams,
@@ -22,16 +23,23 @@ export default async function AuthorizePage({
   if (!session) {
     // If not logged in to S5auth, redirect to login
     // We'll pass the current URL as the callbackUrl
-    const currentUrl = new URL("/api/oidc/authorize", "https://s5auth.netlify.app");
-    Object.entries(params).forEach(([k, v]) => currentUrl.searchParams.set(k, v as string));
+    const currentUrl = new URL(
+      "/api/oidc/authorize",
+      "https://s5auth.netlify.app",
+    );
+    Object.entries(params).forEach(([k, v]) =>
+      currentUrl.searchParams.set(k, v as string),
+    );
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-8">
         <h1 className="text-2xl font-bold mb-4">S5auth 登录</h1>
         <p className="mb-6 text-gray-600">您需要登录 S5auth 才能授权此应用。</p>
-        <form action={async () => {
+        <form
+          action={async () => {
             "use server";
             await signIn("github", { redirectTo: currentUrl.toString() });
-        }}>
+          }}
+        >
           <button className="bg-black text-white px-8 py-3 rounded-full font-bold">
             通过 GitHub 登录
           </button>
@@ -45,7 +53,9 @@ export default async function AuthorizePage({
   });
 
   if (!client || !client.redirectUris.includes(redirectUri)) {
-    return <div className="p-8 text-red-500">Invalid client or redirect URI.</div>;
+    return (
+      <div className="p-8 text-red-500">Invalid client or redirect URI.</div>
+    );
   }
 
   // Handle consent
@@ -71,6 +81,12 @@ export default async function AuthorizePage({
       create: { id: "global", count: 1 },
     });
 
+    // 记录安全审计日志
+    await createAuditLog(session!.user!.id!, "OAUTH_AUTHORIZE", {
+      clientId,
+      clientName: client.name,
+    });
+
     const url = new URL(redirectUri);
     url.searchParams.set("code", code);
     if (state) url.searchParams.set("state", state);
@@ -82,13 +98,18 @@ export default async function AuthorizePage({
       <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl border">
         <h1 className="text-2xl font-bold text-center mb-6">授权请求</h1>
         <p className="text-center text-gray-600 mb-8">
-          应用 <span className="font-bold text-black">{client.name}</span> 想要访问您的 S5auth 账号信息。
+          应用 <span className="font-bold text-black">{client.name}</span>{" "}
+          想要访问您的 S5auth 账号信息。
         </p>
-        
+
         <div className="space-y-4 mb-8">
           <div className="flex items-start gap-3">
-            <div className="bg-green-100 text-green-600 p-1 rounded-full">✓</div>
-            <p className="text-sm text-gray-700">查看您的公开个人资料（姓名、邮箱、头像）</p>
+            <div className="bg-green-100 text-green-600 p-1 rounded-full">
+              ✓
+            </div>
+            <p className="text-sm text-gray-700">
+              查看您的公开个人资料（姓名、邮箱、头像）
+            </p>
           </div>
         </div>
 

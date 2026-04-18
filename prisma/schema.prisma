@@ -20,6 +20,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  auditLogs     AuditLog[]
 }
 
 model Account {
@@ -80,4 +81,16 @@ model OAuthCode {
 model Stats {
   id    String @id @default("global")
   count Int    @default(0)
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  event     String   // e.g., "LOGIN", "OAUTH_AUTHORIZE", "CLIENT_CREATED"
+  ip        String?
+  userAgent String?
+  details   String?  // JSON string for additional info
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
