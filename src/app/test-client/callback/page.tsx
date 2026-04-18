@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { createS5authClient } from "@sqrt5/s5auth-sdk";
 
 function TestCallbackContent() {
   const searchParams = useSearchParams();
@@ -29,30 +30,18 @@ function TestCallbackContent() {
           throw new Error("本地缓存中缺失 Client 凭据，请重新从测试首页开始。");
         }
 
-        // 1. 交换令牌
-        const tokenRes = await fetch("/api/oidc/token", {
-          method: "POST",
-          body: new URLSearchParams({
-            grant_type: "authorization_code",
-            code,
-            client_id: clientId,
-            client_secret: clientSecret,
-            redirect_uri: redirectUri,
-          }),
+        const s5auth = createS5authClient({
+          clientId,
+          clientSecret,
+          redirectUri,
+          baseUrl: window.location.origin,
         });
 
-        const tokenData = await tokenRes.json();
-        if (!tokenRes.ok) throw new Error(tokenData.error || "令牌交换失败");
+        // 1. 交换令牌
+        const tokenData = await s5auth.exchangeCodeForTokens(code);
 
         // 2. 获取用户信息
-        const userRes = await fetch("/api/oidc/userinfo", {
-          headers: {
-            Authorization: `Bearer ${tokenData.access_token}`,
-          },
-        });
-
-        const userData = await userRes.json();
-        if (!userRes.ok) throw new Error(userData.error || "获取用户信息失败");
+        const userData = await s5auth.getUserInfo(tokenData.access_token);
 
         setData({ tokens: tokenData, user: userData });
         setStatus("success");

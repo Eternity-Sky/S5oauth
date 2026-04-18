@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createS5authClient } from "@sqrt5/s5auth-sdk";
 
 export default function TestClientPage() {
   const [clientId, setClientId] = useState("");
@@ -11,10 +12,13 @@ export default function TestClientPage() {
     // Load saved test credentials
     setClientId(localStorage.getItem("test_client_id") || "");
     setClientSecret(localStorage.getItem("test_client_secret") || "");
-    const defaultRedirect = typeof window !== "undefined" 
-      ? `${window.location.origin}/test-client/callback`
-      : "";
-    setRedirectUri(localStorage.getItem("test_redirect_uri") || defaultRedirect);
+    const defaultRedirect =
+      typeof window !== "undefined"
+        ? `${window.location.origin}/test-client/callback`
+        : "";
+    setRedirectUri(
+      localStorage.getItem("test_redirect_uri") || defaultRedirect,
+    );
   }, []);
 
   const handleStartTest = () => {
@@ -23,13 +27,13 @@ export default function TestClientPage() {
     localStorage.setItem("test_client_secret", clientSecret);
     localStorage.setItem("test_redirect_uri", redirectUri);
 
-    const authUrl = new URL("/api/oidc/authorize", window.location.origin);
-    authUrl.searchParams.set("client_id", clientId);
-    authUrl.searchParams.set("redirect_uri", redirectUri);
-    authUrl.searchParams.set("response_type", "code");
-    authUrl.searchParams.set("state", "test_state_123");
+    const s5auth = createS5authClient({
+      clientId,
+      redirectUri,
+      baseUrl: window.location.origin,
+    });
 
-    window.location.href = authUrl.toString();
+    window.location.href = s5auth.getAuthorizationUrl("test_state_123");
   };
 
   return (
@@ -67,7 +71,9 @@ export default function TestClientPage() {
                 />
               </div>
               <div>
-                <p className="text-xs text-gray-500 mb-1">Redirect URI (需在应用设置中允许)</p>
+                <p className="text-xs text-gray-500 mb-1">
+                  Redirect URI (需在应用设置中允许)
+                </p>
                 <input
                   type="text"
                   value={redirectUri}
@@ -94,7 +100,9 @@ export default function TestClientPage() {
           <ul className="list-disc list-inside space-y-1 opacity-80">
             <li>点击按钮后，您将被重定向到 S5auth 的授权页面。</li>
             <li>授权成功后，S5auth 会带回一个 code。</li>
-            <li>本页面会自动在后台调用 /api/oidc/token 交换令牌，并展示结果。</li>
+            <li>
+              本页面会自动在后台调用 /api/oidc/token 交换令牌，并展示结果。
+            </li>
           </ul>
         </div>
       </div>
