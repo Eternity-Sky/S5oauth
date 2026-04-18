@@ -32,8 +32,14 @@ export default async function Home() {
                 进入控制台
               </a>
               <a
-                href="/test-client"
+                href="/docs"
                 className="rounded-full border border-blue-200 text-blue-600 px-6 py-3 font-medium hover:bg-blue-50 transition"
+              >
+                集成指南
+              </a>
+              <a
+                href="/test-client"
+                className="rounded-full bg-gray-100 text-gray-600 px-6 py-3 font-medium hover:bg-gray-200 transition"
               >
                 测试服务
               </a>
