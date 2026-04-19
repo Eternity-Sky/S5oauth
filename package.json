@@ -8,7 +8,6 @@
     "pages:build": "npx @cloudflare/next-on-pages",
     "preview": "npm run pages:build && wrangler pages dev .vercel/output",
     "deploy": "npm run pages:build && wrangler pages deploy .vercel/output",
-    "edgeone:build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
