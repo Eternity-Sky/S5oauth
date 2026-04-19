@@ -6,7 +6,7 @@ import { headers } from "next/headers";
 import TurnstileWidget from "@/components/TurnstileWidget";
 import { loginWithTurnstile } from "@/app/actions/login";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 export default async function AuthorizePage({
   searchParams,

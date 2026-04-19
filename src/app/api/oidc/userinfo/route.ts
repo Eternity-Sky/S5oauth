@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import * as jose from "jose";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 export async function GET(req: Request) {
   const authHeader = req.headers.get("Authorization");
