@@ -21,14 +21,29 @@ export async function POST(req: Request) {
     include: { client: true },
   });
 
-  if (
-    !oauthCode ||
-    oauthCode.expires < new Date() ||
-    oauthCode.clientId !== clientId ||
-    oauthCode.client.clientSecret !== clientSecret ||
-    oauthCode.redirectUri !== redirectUri
-  ) {
-    return NextResponse.json({ error: "invalid_grant" }, { status: 400 });
+  if (!oauthCode) {
+    return NextResponse.json({ error: "invalid_grant", message: "授权码不存在或已被使用" }, { status: 400 });
+  }
+
+  if (oauthCode.expires < new Date()) {
+    return NextResponse.json({ error: "invalid_grant", message: "授权码已过期" }, { status: 400 });
+  }
+
+  if (oauthCode.clientId !== clientId) {
+    return NextResponse.json({ error: "invalid_grant", message: "Client ID 不匹配" }, { status: 400 });
+  }
+
+  if (oauthCode.client.clientSecret !== clientSecret) {
+    return NextResponse.json({ error: "invalid_grant", message: "Client Secret 错误" }, { status: 400 });
+  }
+
+  if (oauthCode.redirectUri !== redirectUri) {
+    return NextResponse.json({ 
+      error: "invalid_grant", 
+      message: "Redirect URI 不匹配",
+      expected: oauthCode.redirectUri,
+      received: redirectUri 
+    }, { status: 400 });
   }
 
   const user = await prisma.user.findUnique({
